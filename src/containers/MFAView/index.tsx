@@ -1,4 +1,5 @@
 import React from 'react';
+import AuthAPI from '../../apis/auth';
 
 import {
   ViewWrapper,
@@ -8,21 +9,29 @@ import {
   RecoveryKeysContainer,
   RecoveryKey,
   Button,
+  LoadingIndicator,
 } from './styles';
 
 const MFAView = () => {
-  const [recoveryKeys, setRevoveryKeys] = React.useState([
-    '90210-DF6F1',
-    '09078-WYSHD',
-    '75527-1WHSN',
-    '95739-XNF3K',
-    '37539-I7OPS',
-    '43927-X9POE',
-    '07923-ARK0S',
-    '19433-M1XMA',
-    '88831-FLUCO',
-    '52348-JPQYR',
-  ]);
+  const [isFetchingKeys, setIsFetchingKeys] = React.useState<boolean>(false);
+  const [recoveryKeys, setRecoveryKeys] = React.useState<string[]>([]);
+
+  React.useEffect(() => {
+    const fetchRecoveryKeys = async () => {
+      setIsFetchingKeys(true);
+      const recoveryKeys: string[] = await AuthAPI.getRecoveryKeys(10);
+      setRecoveryKeys(recoveryKeys);
+      setIsFetchingKeys(false);
+    };
+    fetchRecoveryKeys();
+  }, []);
+
+  const refetchKeys = async () => {
+    setIsFetchingKeys(true);
+    const recoveryKeys = await AuthAPI.getRecoveryKeys(10);
+    setRecoveryKeys(recoveryKeys);
+    setIsFetchingKeys(false);
+  };
 
   return (
     <ViewWrapper>
@@ -33,15 +42,21 @@ const MFAView = () => {
         to WAve with a recovery key. Print, copy, or save them somewhere safe.
       </Text>
 
-      <RecoveryKeysContainer>
-        {recoveryKeys.map((recoveryKey) => (
-          <RecoveryKey key={recoveryKey}>{recoveryKey}</RecoveryKey>
-        ))}
-      </RecoveryKeysContainer>
+      {!isFetchingKeys && (
+        <>
+          <RecoveryKeysContainer>
+            {recoveryKeys.map((recoveryKey) => (
+              <RecoveryKey key={recoveryKey}>{recoveryKey}</RecoveryKey>
+            ))}
+          </RecoveryKeysContainer>
 
-      <Text>Seriously, save these keys!</Text>
+          <Text>Seriously, save these keys!</Text>
+        </>
+      )}
 
-      <Button>Done</Button>
+      {isFetchingKeys && <LoadingIndicator />}
+
+      <Button onClick={refetchKeys}>Generate new keys</Button>
     </ViewWrapper>
   );
 };

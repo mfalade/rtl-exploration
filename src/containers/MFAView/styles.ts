@@ -1,8 +1,9 @@
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 
 export const ViewWrapper = styled.section`
   color: #1c2f2c;
   width: 480px;
+  position: relative;
 `;
 
 export const Pagination = styled.span`
@@ -52,4 +53,22 @@ export const Button = styled.button`
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
+`;
+
+export const spinnerAnimation = keyframes`
+0% { transform: rotate(0deg);  }
+100% { transform: rotate(360deg)}
+`;
+export const LoadingIndicator = styled.div`
+  position: relative;
+  left: 40%;
+  height: 40px;
+  width: 40px;
+  border: 4px solid #2047ce;
+  border-top: 4px solid #f3f3f3;
+  border-radius: 50%;
+  background: none;
+  margin-top: 40px;
+  margin-bottom: 16px;
+  animation: ${spinnerAnimation} 1s linear infinite;
 `;
